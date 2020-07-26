@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, shrink-to-fit=no" name="viewport">
+  <title>后端管理首页</title>
+  <div th:replace="teacher/teacher_fragment::css"></div>
+</head>
+<body>
+<div id="app">
+  <div class="main-wrapper">
+    <div class="navbar-bg"></div>
+    <nav th:replace="teacher/teacher_fragment::nav"></nav>
+    <nav th:replace="teacher/teacher_fragment::main-sidebar(8)"></nav>
+
+    <div class="main-content">
+      <section class="section">
+        <h1 class="section-header">
+          <div>学校选课系统</div>
+        </h1>
+        <div class="row">
+          <div class="table-responsive">
+            <input hidden th:value="${session.user.id}" id="id">
+            <table class="table table-striped" th:fragment="tbody" id="tbody">
+              <thead>
+              <tr>
+                <td colspan="4">
+                  <form class="form-inline">
+                    <div class="form-group">
+                      <label for="coursename">课程名：</label>
+                      <input type="text" class="form-control" id="coursename" placeholder="输入课程名">
+                    </div>
+                    <div class="form-group">
+                      <label for="coursenum">总数：</label>
+                      <input type="text" class="form-control" id="coursenum" placeholder="输入总数">
+                    </div>
+                    <button type="button" onclick="addCourse()" class="btn btn-primary">添加课程</button>
+                  </form>
+                </td>
+              </tr>
+              <tr>
+                <th>课程号</th>
+                <th>课程名</th>
+                <th>创建教师</th>
+                <th>总数</th>
+                <th>已选</th>
+                <th>剩余</th>
+                <th>操作</th>
+              </tr>
+              </thead>
+              <tbody >
+              <tr th:each="course : ${courses}">
+                <td th:text="${course.id}"></td>
+                <td th:text="${course.name}"></td>
+                <td th:text="${course.getTeacher().name}"></td>
+                <td th:text="${course.totalnum}"></td>
+                <td th:text="${course.usednum}">0</td>
+                <td th:text="${course.totalnum}" th:if="${#strings.isEmpty(course.usednum)}"></td>
+                <td th:text="${course.totalnum}-${course.usednum}" th:unless="${#strings.isEmpty(course.usednum)}"></td>
+                <td>
+                  <a onclick="toupdatecourse(this)" th:name="${course.id}" class="btn btn-primary btn-action mr-1" data-toggle="tooltip" title="编辑"><i class="ion ion-edit"></i>编辑</a>
+                  <a onclick="deleteCourse(this)" th:name="${course.id}" th:if="${course.usednum}==0" class="btn btn-danger btn-action" data-toggle="tooltip" title="删除"><i class="ion ion-trash-b"></i>删除</a>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </div>
+    <div th:replace="teacher/teacher_fragment::footer" ></div>
+  </div>
+</div>
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <center  id="exampleModalLabel">修改课程</center>
+      </div>
+      <div class="modal-body">
+        <form>
+          <input hidden id="classid">
+          <div class="form-group">
+            <label for="updatecoursename" class="control-label">课程名:</label>
+            <input type="text" class="form-control" id="updatecoursename" placeholder="课程名">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button  onclick="closemodel()" class="btn btn-default" data-dismiss="modal">放弃</button>
+        <button onclick="updatecourse()" type="button" class="btn btn-primary">修改</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 请正确输入课程名和课程数 -->
+<div id="coursenotempty"  class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content  bg-info">
+      <center>
+        <p>学校选课系统</p>
+        <p>请正确输入课程名和课程数</p>
+      </center>
+    </div>
+  </div>
+</div>
+<!-- 该课程已存在 -->
+<div id="coursenotrepeat"  class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content  bg-info">
+      <center>
+        <p>学校选课系统</p>
+        <p>该课程已存在</p>
+      </center>
+    </div>
+  </div>
+</div>
+<div th:replace="teacher/teacher_fragment::js" th:remove="tag"></div>
+<script>
+  function addCourse() {
+    let coursename = $("#coursename").val();
+    let coursenum = $("#coursenum").val();
+    let test = /^[0-9]*[1-9][0-9]*$/.test(coursenum);
+    if (coursename!=null&&coursename!=''&&test&&coursenum!=''){
+      $.ajax({
+        url: "checkcourserepeat?name="+coursename,
+        success:function (result) {
+          if (result=='success'){
+            $('#tbody').load(/*[[@{/addcourse}]]*/"/addcourse",{
+              "name":coursename,
+              "num":coursenum,
+            })
+          }else {
+            $('#coursenotrepeat').modal('toggle')
+            $("#coursename").val('');
+          }
+        }
+      })
+    }else {
+      $('#coursenotempty').modal('toggle');
+    }
+  }
+  function deleteCourse(obj) {
+       var b = confirm("确定要删除该课程么？");
+       if (b==true){
+         var id=$(obj).attr('name');
+       window.location="deletecourse?id="+id
+       }
+  }
+  var id;
+  function toupdatecourse(obj) {
+     id = $(obj).attr('name');
+    $('#exampleModal').modal('show')
+  }
+  function closemodel() {
+    $('#exampleModal').modal('hide')
+  }
+  function updatecourse() {
+    var name=$('#updatecoursename').val();
+    $('#exampleModal').modal('hide')
+      $.ajax({
+        url: "checkcourserepeat?name="+name,
+        success:function (result) {
+         if(result=='success'){
+           $.ajax({
+             url:'updatecourse?id='+id+"&name="+name,
+             success:function (result) {
+               window.location="queryAllCourse?id="+$("#id").val();
+             }
+           })
+         }else{
+           $('#coursenotrepeat').modal('toggle')
+         }
+        }
+      })
+
+  }
+  var ctx = document.getElementById("myChart").getContext('2d');
+  var myChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+      datasets: [{
+        label: 'Statistics',
+        data: [460, 458, 330, 502, 430, 610, 488],
+        borderWidth: 2,
+        backgroundColor: 'rgb(87,75,144)',
+        borderColor: 'rgb(87,75,144)',
+        borderWidth: 2.5,
+        pointBackgroundColor: '#ffffff',
+        pointRadius: 4
+      }]
+    },
+    options: {
+      legend: {
+        display: false
+      },
+      scales: {
+        yAxes: [{
+          ticks: {
+            beginAtZero: true,
+            stepSize: 150
+          }
+        }],
+        xAxes: [{
+          gridLines: {
+            display: false
+          }
+        }]
+      },
+    }
+  });
+</script>
+
+</body>
+</html>

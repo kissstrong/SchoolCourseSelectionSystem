@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, shrink-to-fit=no" name="viewport">
+  <title>后端管理首页</title>
+  <div th:replace="teacher/teacher_fragment::css"></div>
+</head>
+<body>
+<div id="app">
+  <div class="main-wrapper">
+    <div class="navbar-bg"></div>
+    <nav th:replace="teacher/teacher_fragment::nav"></nav>
+    <nav th:replace="teacher/teacher_fragment::main-sidebar(1)"></nav>
+
+    <div class="main-content">
+      <section class="section">
+        <h1 class="section-header">
+          <div>学校选课系统</div>
+        </h1>
+        <div class="row">
+          <div class="table-responsive">
+            <table class="table table-striped" th:fragment="tbody" id="tbody">
+              <thead>
+              <tr>
+                <th>课程名</th>
+                <th>创建教师</th>
+                <th>学生学号</th>
+                <th>学生班级</th>
+                <th>学生姓名</th>
+                <th>加分项</th>
+                <th>加分分数</th>
+                <th>卷面分数</th>
+                <th>总分数</th>
+                <th>操作</th>
+              </tr>
+              </thead>
+              <tbody >
+              <tr th:each="course : ${courses}">
+                <div th:if="${course.isRebuild()}">
+                  <td th:text="${course.name}"></td>
+                  <td th:text="${course.getTeacher().name}"></td>
+                  <td th:text="${course.getStudent().id}"></td>
+                  <td th:text="${course.getStudent().getAClass().name}"></td>
+                  <td th:text="${course.getStudent().name}"></td>
+                  <td th:text="${course.bonusItem}"></td>
+                  <td th:text="${course.bonusGrade}">0</td>
+                  <td th:text="${course.grade}">0</td>
+                  <td th:text="${course.bonusGrade}+${course.grade}"></td>
+                  <td>
+                    <a onclick="agree(this)" th:id="${course.id}" class="btn btn-primary btn-action mr-1" data-toggle="tooltip" ><i class="ion ion-edit"></i>同意申请</a>
+                  </td>
+                </div>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </div>
+    <div th:replace="teacher/teacher_fragment::footer" ></div>
+  </div>
+</div>
+<!-- 该课程已存在 -->
+<div id="successApplication"  class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content  bg-info">
+      <center>
+        <p>学校选课系统</p>
+        <p>同意申请！</p>
+      </center>
+    </div>
+  </div>
+</div>
+<div th:replace="student/student_fragment::js" th:remove="tag"></div>
+<script>
+  function agree(obj) {
+    let cid = $(obj).attr('id');
+    $.ajax({
+      url: "agreerebuild?cid="+cid,
+      success:function (result) {
+        $('#successApplication').modal('toggle')
+        $('#'+cid).remove();
+      }
+    })
+  }
+  var ctx = document.getElementById("myChart").getContext('2d');
+  var myChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+      datasets: [{
+        label: 'Statistics',
+        data: [460, 458, 330, 502, 430, 610, 488],
+        borderWidth: 2,
+        backgroundColor: 'rgb(87,75,144)',
+        borderColor: 'rgb(87,75,144)',
+        borderWidth: 2.5,
+        pointBackgroundColor: '#ffffff',
+        pointRadius: 4
+      }]
+    },
+    options: {
+      legend: {
+        display: false
+      },
+      scales: {
+        yAxes: [{
+          ticks: {
+            beginAtZero: true,
+            stepSize: 150
+          }
+        }],
+        xAxes: [{
+          gridLines: {
+            display: false
+          }
+        }]
+      },
+    }
+  });
+</script>
+
+</body>
+</html>

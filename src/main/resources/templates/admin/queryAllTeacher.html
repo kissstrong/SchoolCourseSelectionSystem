@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, shrink-to-fit=no" name="viewport">
+  <title>后端管理首页</title>
+  <div th:replace="admin/admin_fragment::css"></div>
+</head>
+<body>
+<div id="app">
+  <div class="main-wrapper">
+    <div class="navbar-bg"></div>
+    <nav th:replace="admin/admin_fragment::nav"></nav>
+    <nav th:replace="admin/admin_fragment::main-sidebar(4)"></nav>
+
+    <div class="main-content">
+      <section class="section">
+        <h1 class="section-header">
+          <div>学校选课系统</div>
+        </h1>
+        <div class="row">
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+              <tr>
+                <th>工号</th>
+                <th>系名</th>
+                <th>所教班级</th>
+                <th>姓名</th>
+                <th>性别</th>
+                <th>QQ邮箱</th>
+                <th>住址</th>
+                <th>操作</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr th:each="teacher : ${allTeacher}">
+                <td th:text="${teacher.id}"></td>
+                <td th:text="${teacher.getAClass()?.dept}"></td>
+                <td th:text="${teacher.getAClass()?.name}"></td>
+                <td th:text="${teacher.name}"></td>
+                <td th:text="${teacher.gender}"></td>
+                <td th:text="${teacher.email}"></td>
+                <td th:text="${teacher.location.replace('_','')}"></td>
+                <td>
+                  <a th:href="@{toupdateteacher(id=${teacher.id})}" class="btn btn-primary btn-action mr-1" data-toggle="tooltip" title="编辑"><i class="ion ion-edit"></i>编辑</a>
+                  <a onclick="deleteteacher(this)" th:name="${teacher.id}" class="btn btn-danger btn-action" data-toggle="tooltip" title="删除"><i class="ion ion-trash-b"></i>删除</a>
+                  <a onclick="resetteacher(this)" th:name="${teacher.id}" class="btn btn-primary btn-action mr-1" data-toggle="tooltip" title="重置密码"><i class="ion ion-edit"></i>重置密码</a>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </div>
+    <div th:replace="admin/admin_fragment::footer" ></div>
+  </div>
+</div>
+<!-- 邮箱重复 -->
+<div id="resetsuccess"  class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content  bg-info">
+      <center>
+        <p>学校选课系统</p>
+        <p>密码已重置为123456！</p>
+      </center>
+    </div>
+  </div>
+</div>
+<!-- 邮箱重复 -->
+<div id="teacherhavestudent"  class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content  bg-info">
+      <center>
+        <p>学校选课系统</p>
+        <p>该教师的课程有学生选！</p>
+      </center>
+    </div>
+  </div>
+</div>
+<div th:replace="admin/admin_fragment::js" th:remove="tag"></div>
+<script>
+  function deleteteacher(obj) {
+       var b = confirm("确定要删除该教师么？");
+       if (b==true){
+         var id=$(obj).attr('name');
+        $.ajax({
+          url:"deleteteacher?id="+id,
+          success:function (result) {
+            if (result=='success'){
+              window.location="queryAllTeacher";
+            }else {
+              $('#teacherhavestudent').modal('toggle')
+            }
+
+          }
+        })
+       }
+  }
+  function resetteacher(obj) {
+       var b = confirm("确定要重置该教师密码么？");
+       if (b==true){
+         var id=$(obj).attr('name');
+        $.ajax({
+          url:"resetteacher?id="+id,
+          success:function () {
+            $('#resetsuccess').modal('toggle')
+          }
+        })
+       }
+  }
+  var ctx = document.getElementById("myChart").getContext('2d');
+  var myChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+      datasets: [{
+        label: 'Statistics',
+        data: [460, 458, 330, 502, 430, 610, 488],
+        borderWidth: 2,
+        backgroundColor: 'rgb(87,75,144)',
+        borderColor: 'rgb(87,75,144)',
+        borderWidth: 2.5,
+        pointBackgroundColor: '#ffffff',
+        pointRadius: 4
+      }]
+    },
+    options: {
+      legend: {
+        display: false
+      },
+      scales: {
+        yAxes: [{
+          ticks: {
+            beginAtZero: true,
+            stepSize: 150
+          }
+        }],
+        xAxes: [{
+          gridLines: {
+            display: false
+          }
+        }]
+      },
+    }
+  });
+</script>
+
+</body>
+</html>

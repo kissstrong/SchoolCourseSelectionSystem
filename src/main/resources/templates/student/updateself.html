@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, shrink-to-fit=no" name="viewport">
+  <title>学校选课系统</title>
+  <div th:replace="student/student_fragment::css"></div>
+</head>
+<body>
+  <div id="app">
+    <div class="main-wrapper">
+      <div class="navbar-bg"></div>
+     <nav th:replace="student/student_fragment::nav"></nav>
+     <nav th:replace="student/student_fragment::main-sidebar(17)"></nav>
+      <div class="main-content">
+        <section class="section">
+          <h1 class="section-header">
+            <div>学校选课系统</div>
+          </h1>
+          <div class="row">
+              <div class="card-body">
+                  <form method="POST" th:action="@{/updatestudent}">
+                      <input hidden name="id" th:value="${student.id}">
+                      <div class="row">
+                          <div class="form-group col-6">
+                              <label for="name">姓名</label>
+                              <input id="name" type="text" class="form-control" th:value="${student.name}" required name="name" autofocus>
+                          </div>
+                          <div class="form-group col-6">
+                              <div class="rows">
+                                  <div class="row">
+                                      <label for="name">性别</label>
+                                  </div>
+                                  <div class="row">
+                                      <div class="col-6">
+                                          <span>男  </span><input type="radio" th:attr="checked=${student.gender == '男'?true:false}"   name="gender" value="男">
+                                      </div>
+                                      <div class="col-6">
+                                          <span>女  </span><input type="radio" th:attr="checked=${student.gender == '女'?true:false}"  name="gender" value="女">
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                      <div class="form-group">
+                          <div class="row">
+                              <div class="form-group col-6">
+                                  <label for="email">QQ邮箱</label>
+                                  <input hidden th:value="${student.email}" id="email1">
+                                  <input id="email" type="email" required th:value="${student.email}" class="form-control" name="email">
+                              </div>
+                          </div>
+                      </div>
+                      <div class="form-divider">
+                          <input hidden th:value="${addr.sheng}" name="sheng" id="sheng">
+                          <input hidden th:value="${addr.shi}" name="shi" id="shi">
+                          <input hidden th:value="${addr.qu}" name="qu" id="qu">
+                          住址:<input disabled id="location" th:value="${student.location.replace('_','  ')}" title="如果需要修改地址请重新选择">
+                      </div>
+                      <div data-toggle="distpicker">
+                          <div class="row" >
+                              <div class="form-group col-4" >
+                                  <label>省</label>
+                                  <select class="form-control sheng"   data-province="---- 选择省 ----" id="receiverState"></select>
+                              </div>
+                              <div class="form-group col-4">
+                                  <label>市</label>
+                                  <select class="form-control shi"  data-city="---- 选择市 ----" id="receiverCity" ></select>
+                              </div>
+                              <div class="form-group col-4">
+                                  <label>区</label>
+                                  <select class="form-control qu" data-district="---- 选择区 ----" id="receiverDistrict"></select>
+                              </div>
+                          </div>
+                      </div>
+                      <div class="form-group">
+                          <button type="submit"  class="btn btn-primary btn-block">
+                              修改
+                          </button>
+                      </div>
+                  </form>
+              </div>
+          </div>
+        </section>
+      </div>
+        <!-- 邮箱重复 -->
+        <div id="emailrepeat"  class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+            <div class="modal-dialog modal-sm" role="document">
+                <div class="modal-content  bg-info">
+                    <center>
+                        <p>学校选课系统</p>
+                        <p>该邮箱已注册，请重新输入</p>
+                    </center>
+                </div>
+            </div>
+        </div>
+        <!-- 正确的邮箱地址 -->
+        <div id="rightemail"  class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+            <div class="modal-dialog modal-sm" role="document">
+                <div class="modal-content  bg-info">
+                    <center>
+                        <p>学校选课系统</p>
+                        <p>请输入正确的邮箱地址</p>
+                    </center>
+                </div>
+            </div>
+        </div>
+      <div th:replace="student/student_fragment::footer" ></div>
+    </div>
+  </div>
+  <div th:replace="student/student_fragment::js" th:remove="tag"></div>
+  <script>
+     $("#email").blur(function () {
+          var val = $('#email').val();
+          var val1 = $("#email1").val();
+         const ischeck = /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/.test(val);
+         if(val!=val1){
+             if (ischeck){
+                 $.ajax({
+                     url:"checkemail?email="+val,
+                     success:function (result) {
+                         if (result=='success'){}
+                         else {
+                             $('#emailrepeat').modal('toggle')
+                             $('#email').val("")
+                         }
+                     }
+                 })
+             } else {
+                 $('#rightemail').modal('toggle')
+             }
+          }
+      })
+
+    $('.sheng').blur(function () {
+        var location =$('#location');
+        var shi = $('#shi').val();
+        var sheng = $('#sheng').val($(this).val());
+        var qu = $('#qu').val();
+        location.val($(this).val()+' '+shi+' '+qu)
+    })
+    $('.shi').blur(function () {
+        var location = $('#location');
+        var shi = $('#shi').val($(this).val());
+        var sheng = $('#sheng').val();
+        var qu = $('#qu').val();
+        location.val(sheng+' '+$(this).val()+' '+qu)
+    })
+    $('.qu').blur(function () {
+        var location = $('#location');
+        var shi = $('#shi').val();
+        var sheng = $('#sheng').val();
+        var qu = $('#qu').val($(this).val());
+        location.val(sheng+' '+shi+' '+$(this).val())
+    })
+      var ctx = document.getElementById("myChart").getContext('2d');
+    var myChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+      datasets: [{
+        label: 'Statistics',
+        data: [460, 458, 330, 502, 430, 610, 488],
+        borderWidth: 2,
+        backgroundColor: 'rgb(87,75,144)',
+        borderColor: 'rgb(87,75,144)',
+        borderWidth: 2.5,
+        pointBackgroundColor: '#ffffff',
+        pointRadius: 4
+      }]
+    },
+    options: {
+      legend: {
+        display: false
+      },
+      scales: {
+        yAxes: [{
+          ticks: {
+            beginAtZero: true,
+            stepSize: 150
+          }
+        }],
+        xAxes: [{
+          gridLines: {
+            display: false
+          }
+        }]
+      },
+    }
+  });
+
+  </script>
+
+</body>
+</html>

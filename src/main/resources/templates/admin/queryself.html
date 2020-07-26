@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, shrink-to-fit=no" name="viewport">
+  <title>后端管理首页</title>
+  <div th:replace="admin/admin_fragment::css"></div>
+</head>
+<body>
+  <div id="app">
+    <div class="main-wrapper">
+      <div class="navbar-bg"></div>
+     <nav th:replace="admin/admin_fragment::nav"></nav>
+     <nav th:replace="admin/admin_fragment::main-sidebar(7)"></nav>
+      <div class="main-content">
+        <section class="section">
+          <h1 class="section-header">
+            <div>学校选课系统</div>
+          </h1>
+          <div class="row">
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <thead>
+                <tr>
+                  <th>工号</th>
+                  <th>姓名</th>
+                  <th>性别</th>
+                  <th>邮箱</th>
+                  <th>住址</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                  <td th:text="${admin.id}"></td>
+                  <td th:text="${admin.name}"></td>
+                  <td th:text="${admin.gender}"></td>
+                  <td th:text="${admin.email}"></td>
+                  <td th:text="${admin.location.replace('_','')}"></td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </div>
+      <div th:replace="admin/admin_fragment::footer" ></div>
+    </div>
+  </div>
+  <div th:replace="admin/admin_fragment::js" th:remove="tag"></div>
+  <script>
+  var ctx = document.getElementById("myChart").getContext('2d');
+  var myChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+      datasets: [{
+        label: 'Statistics',
+        data: [460, 458, 330, 502, 430, 610, 488],
+        borderWidth: 2,
+        backgroundColor: 'rgb(87,75,144)',
+        borderColor: 'rgb(87,75,144)',
+        borderWidth: 2.5,
+        pointBackgroundColor: '#ffffff',
+        pointRadius: 4
+      }]
+    },
+    options: {
+      legend: {
+        display: false
+      },
+      scales: {
+        yAxes: [{
+          ticks: {
+            beginAtZero: true,
+            stepSize: 150
+          }
+        }],
+        xAxes: [{
+          gridLines: {
+            display: false
+          }
+        }]
+      },
+    }
+  });
+  </script>
+
+</body>
+</html>

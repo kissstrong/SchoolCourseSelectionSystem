@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, shrink-to-fit=no" name="viewport">
+  <title>后端管理首页</title>
+  <div th:replace="admin/admin_fragment::css"></div>
+</head>
+<body>
+<div id="app">
+  <div class="main-wrapper">
+    <div class="navbar-bg"></div>
+    <nav th:replace="admin/admin_fragment::nav"></nav>
+    <nav th:replace="admin/admin_fragment::main-sidebar(5)"></nav>
+
+    <div class="main-content">
+      <section class="section">
+        <h1 class="section-header">
+          <div>学校选课系统</div>
+        </h1>
+        <div class="row">
+          <div class="table-responsive">
+            <table class="table table-striped" th:fragment="tbody" id="tbody">
+              <thead>
+              <tr>
+                <td colspan="4">
+                  <form class="form-inline">
+                    <div class="form-group">
+                      <label for="dept-add">系名：</label>
+                      <input type="text" class="form-control" id="dept-add" placeholder="输入系名">
+                    </div>
+                    <div class="form-group">
+                      <label for="classname-add">班级名：</label>
+                      <input type="text" class="form-control" id="classname-add" placeholder="输入班级名">
+                    </div>
+                    <button type="button" onclick="addClass()" class="btn btn-primary">添加班级</button>
+                  </form>
+                </td>
+              </tr>
+              <tr>
+                <th>班级号</th>
+                <th>系名</th>
+                <th>班级名</th>
+                <th>操作</th>
+              </tr>
+              </thead>
+              <tbody >
+              <tr th:each="calss : ${classes}">
+                <td th:text="${calss.id}"></td>
+                <td th:text="${calss.dept}"></td>
+                <td th:text="${calss.name}"></td>
+                <td>
+                  <a  onclick="toupdateclass(this)" th:name="${calss.id}" class="btn btn-primary btn-action mr-1" data-toggle="tooltip" title="编辑"><i class="ion ion-edit"></i>编辑</a>
+                  <a onclick="deleteClass(this)" th:name="${calss.id}" class="btn btn-danger btn-action" data-toggle="tooltip" title="删除"><i class="ion ion-trash-b"></i>删除</a>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </div>
+    <div th:replace="admin/admin_fragment::footer" ></div>
+  </div>
+</div>
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <center  id="exampleModalLabel">修改班级</center>
+      </div>
+      <div class="modal-body">
+        <form>
+          <input hidden id="classid">
+          <div class="form-group">
+            <label for="dept" class="control-label">系名:</label>
+            <input type="text" class="form-control" id="dept" placeholder="系名">
+          </div>
+          <div class="form-group">
+            <label for="classname" class="control-label">班级名:</label>
+            <input class="form-control" id="classname" placeholder="班级名">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button  onclick="closemodel()" class="btn btn-default" data-dismiss="modal">放弃</button>
+        <button onclick="updateclass()" type="button" class="btn btn-primary">修改</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 该班级中存在学生或老师 -->
+<div id="classhaveperson"  class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content  bg-info">
+      <center>
+        <p>学校选课系统</p>
+        <p>该班级中存在学生或老师</p>
+      </center>
+    </div>
+  </div>
+</div>
+<!-- 添加系名和班级名都不能为空 -->
+<div id="classnotempty"  class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content  bg-info">
+      <center>
+        <p>学校选课系统</p>
+        <p>系名和班级名均不能为空</p>
+      </center>
+    </div>
+  </div>
+</div>
+<!-- 添加系名和班级名已存在 -->
+<div id="classnotrepeat"  class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content  bg-info">
+      <center>
+        <p>学校选课系统</p>
+        <p>该系名下的该班级已存在</p>
+      </center>
+    </div>
+  </div>
+</div>
+<div th:replace="admin/admin_fragment::js" th:remove="tag"></div>
+<script>
+  function addClass() {
+    let dept_add = $("#dept-add").val();
+    let classname_add = $("#classname-add").val();
+    if (dept_add!=null&&dept_add!=''&&classname_add!=null&&classname_add!=''){
+      $.ajax({
+        url: "checkclassrepeat?dept="+dept_add+'&name='+classname_add,
+        success:function (result) {
+          if (result=='success'){
+            $('#tbody').load(/*[[@{/addcourse}]]*/"/addclass",{
+              "dept":dept_add,
+              "name":classname_add
+            })
+          }else {
+            $('#classnotrepeat').modal('toggle')
+            $("#classname-add").val('');
+          }
+        }
+      })
+    }else {
+      $('#classnotempty').modal('toggle');
+    }
+  }
+  function deleteClass(obj) {
+       var b = confirm("确定要删除该班级么？");
+       if (b==true){
+         var id=$(obj).attr('name');
+        $.ajax({
+          url:"deleteclass?id="+id,
+          success:function (result) {
+            if (result=='success'){
+              window.location="queryAllClass";
+            }else {
+              $('#classhaveperson').modal('toggle')
+            }
+          }
+        })
+       }
+  }
+  var id;
+  function toupdateclass(obj) {
+     id = $(obj).attr('name');
+    $('#exampleModal').modal('show')
+  }
+  function closemodel() {
+    $('#exampleModal').modal('hide')
+  }
+  function updateclass() {
+    var dept=$('#dept').val();
+    var name=$('#classname').val();
+    $('#exampleModal').modal('hide')
+      $.ajax({
+        url: "checkclassrepeat?dept="+dept+'&name='+name,
+        success:function (result) {
+         if(result=='success'){
+           $.ajax({
+             url:'updateclass?id='+id+"&dept="+dept+"&name="+name,
+             success:function (result) {
+               window.location="queryAllClass";
+             }
+           })
+         }else{
+           $('#classnotrepeat').modal('toggle')
+         }
+        }
+      })
+
+  }
+  var ctx = document.getElementById("myChart").getContext('2d');
+  var myChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+      datasets: [{
+        label: 'Statistics',
+        data: [460, 458, 330, 502, 430, 610, 488],
+        borderWidth: 2,
+        backgroundColor: 'rgb(87,75,144)',
+        borderColor: 'rgb(87,75,144)',
+        borderWidth: 2.5,
+        pointBackgroundColor: '#ffffff',
+        pointRadius: 4
+      }]
+    },
+    options: {
+      legend: {
+        display: false
+      },
+      scales: {
+        yAxes: [{
+          ticks: {
+            beginAtZero: true,
+            stepSize: 150
+          }
+        }],
+        xAxes: [{
+          gridLines: {
+            display: false
+          }
+        }]
+      },
+    }
+  });
+</script>
+
+</body>
+</html>

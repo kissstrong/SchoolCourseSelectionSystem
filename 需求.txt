@@ -1,0 +1,28 @@
+admin：
+id，name，password，location，email
+
+student：
+id ，name，password，email，location ，    一个class对象，多个course对象
+
+teacher：
+id，name，password，email，location，     多个course对象，isgoodteacher
+
+class：
+id，name，dept，    多个student对象，一个teacher
+
+course：
+id ，name，BonusItem，isrebuild，grade， 一个teacher对象，多个student对象
+
+功能：
+管理员：
+     查询所有学生，老师信息，crud老师，学生，修改老师，学生密码，crud班级查询自己信息，修改自己信息，修改密码，创建班级
+===========================================pass====================================================
+学生：
+     重修报名，成绩报名作废申请，成绩加分申请，自主选课，查询个人信息，学生成绩查询，重修查询，最佳教师评选，修改基本信息，修改密码
+
+教师：
+     重修报名，成绩加分申请，查询学生选课，查询所有选课，查询个人信息，学生成绩查询，重修查询，最佳教师评选，修改基本信息，修改选课信息，修改密码
+
+
+忘记密码可以发送邮箱验证码 重置密码
+注册时需要qq邮箱必填

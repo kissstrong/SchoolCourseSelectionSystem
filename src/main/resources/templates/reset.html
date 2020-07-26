@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, shrink-to-fit=no" name="viewport">
+  <title>密码重置页面</title>
+  <link rel="stylesheet" th:href="@{dist/modules/bootstrap/css/bootstrap.min.css}">
+  <link rel="stylesheet" th:href="@{dist/modules/ionicons/css/ionicons.min.css}">
+  <link rel="stylesheet" th:href="@{dist/modules/fontawesome/web-fonts-with-css/css/fontawesome-all.min.css}">
+  <link rel="stylesheet" th:href="@{dist/css/demo.css}">
+  <link rel="stylesheet" th:href="@{dist/css/style.css}">
+</head>
+<body>
+  <div id="app">
+    <section class="section">
+      <div class="container mt-5">
+        <div class="row">
+          <div class="col-12 col-sm-8 offset-sm-2 col-md-6 offset-md-3 col-lg-6 offset-lg-3 col-xl-4 offset-xl-4">
+            <div class="login-brand">
+              学校选课系统
+            </div>
+            <div class="card card-primary">
+              <div class="card-header"><center><h3>重置密码</h3></center></div>
+              <div class="card-body">
+                <p class="text-muted">我们将发送一个验证码来重置密码</p>
+                <form method="POST" th:action="@{/resetpassword}">
+                  <div class="form-group">
+                    <label for="email">QQ邮箱</label>
+                    <span class="input-group">
+                      <input id="email" type="email" class="form-control" name="email" tabindex="1" required autofocus>
+                      <button class="btn btn-primary small" type="button" onclick="sendcode()">发送验证码</button>
+                    </span>
+                  </div>
+                  <div class="form-group">
+                    <label for="code">验证码</label>
+                    <input id="code" type="text" class="form-control"  tabindex="1" required autofocus>
+                  </div>
+                  <div class="form-group">
+                    <label for="password">新密码</label>
+                    <input id="password" type="password" class="form-control pwstrength" data-indicator="pwindicator" name="password" tabindex="2" required>
+                    <div id="pwindicator" class="pwindicator">
+                      <div class="bar"></div>
+                      <div class="label"></div>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="password2">确认密码</label>
+                    <input id="password2" type="password" class="form-control"  tabindex="2" required>
+                  </div>
+
+                  <div class="form-group">
+                    <button type="submit" class="btn btn-primary btn-block" tabindex="4">
+                      重置密码
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+            <div class="simple-footer">
+              Copyright &copy; Stisla 2018
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+  <!-- 邮箱是否存在 -->
+  <div id="emailexist"  class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+    <div class="modal-dialog modal-sm" role="document">
+      <div class="modal-content  bg-info">
+        <center>
+          <p>学校选课系统</p>
+          <p>该邮箱未注册注册，请重新输入</p>
+        </center>
+      </div>
+    </div>
+  </div>
+  <!-- 验证码发送成功 -->
+  <div id="success"  class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+    <div class="modal-dialog modal-sm" role="document">
+      <div class="modal-content  bg-info">
+        <center>
+          <p>学校选课系统</p>
+          <p>验证码发送成功</p>
+        </center>
+      </div>
+    </div>
+  </div>
+  <!-- 验证码校验成功 -->
+  <div id="successcheck"  class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+    <div class="modal-dialog modal-sm" role="document">
+      <div class="modal-content  bg-info">
+        <center>
+          <p>学校选课系统</p>
+          <p>验证码校验成功</p>
+        </center>
+      </div>
+    </div>
+  </div>
+  <!-- 60秒内不能发送两次-->
+  <div id="error"  class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+    <div class="modal-dialog modal-sm" role="document">
+      <div class="modal-content  bg-warning">
+        <center>
+          <p>学校选课系统</p>
+          <p>60秒内不能发送两次</p>
+        </center>
+      </div>
+    </div>
+  </div>
+  <!-- 验证码错误 -->
+  <div id="errorcheck"  class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+    <div class="modal-dialog modal-sm" role="document">
+      <div class="modal-content  bg-danger">
+        <center>
+          <p>学校选课系统</p>
+          <p>验证码错误</p>
+        </center>
+      </div>
+    </div>
+  </div>
+  <!-- 验证码错误 -->
+  <div id="passtime"  class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+    <div class="modal-dialog modal-sm" role="document">
+      <div class="modal-content  bg-info">
+        <center>
+          <p>学校选课系统</p>
+          <p>验证码已过期，请重新发送</p>
+        </center>
+      </div>
+    </div>
+  </div>
+  <script th:src="@{dist/modules/jquery.min.js}"></script>
+  <script th:src="@{dist/modules/popper.js}"></script>
+  <script th:src="@{dist/modules/tooltip.js}"></script>
+  <script th:src="@{dist/modules/bootstrap/js/bootstrap.min.js}"></script>
+  <script th:src="@{dist/modules/nicescroll/jquery.nicescroll.min.js}"></script>
+  <script th:src="@{dist/modules/moment.min.js}"></script>
+  <script th:src="@{dist/modules/scroll-up-bar/dist/scroll-up-bar.min.js}"></script>
+  <script th:src="@{dist/js/sa-functions.js}"></script>
+  <script th:src="@{dist/js/scripts.js}"></script>
+  <script th:src="@{dist/js/custom.js}"></script>
+<script>
+  /*校验邮箱是否存在*/
+  $("#email").change(function () {
+    $.ajax({
+      url:"existemail?email="+$('#email').val(),
+      success:function (result) {
+        if (result=='success'){}
+        else {
+          $('#emailexist').modal('toggle')
+          $('#email').val("")
+        }
+      }
+    })
+  })
+  /*发送验证码*/
+  function sendcode() {
+    var qq = $("#email").val();
+    const ischeck = /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/.test(qq);
+    if (ischeck){
+      $.ajax({
+        url:"sendcheckCode?qq="+qq,
+        success: function (msg) {
+          if (msg=='success'){
+            $('#success').modal('toggle')
+          }else {
+            $('#error').modal('toggle')
+          }
+        }
+      })
+    }else {
+      alert("请填写正确邮箱地址")
+    }
+  }
+  /*校验两次密码输入是否一致*/
+  $("#password2").change(function () {
+    let val = $("#password").val();
+    let val1 = $("#password2").val();
+    if (val1==val&&val1!=null&&val1!=''){
+    }else {
+      alert('两次密码要一致')
+      $("#password").val('');
+      $("#password2").val('');
+    }
+  });
+  $("#code").change(function () {
+    var code =$("#code").val();
+    var qq = $("#email").val();
+    $.ajax({
+      url:"checkcode?code="+code+"&qq="+qq,
+      success:function (result) {
+        if (result=='success'){
+          $('#successcheck').modal('toggle')
+        }else if (result=='error'){
+          $('#errorcheck').modal('toggle')
+        }else {
+          $('#passtime').modal('toggle')
+        }
+      }
+    })
+  })
+</script>
+</body>
+</html>
